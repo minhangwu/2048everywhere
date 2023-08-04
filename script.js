@@ -19,17 +19,18 @@ function createBoard() {
 
 // Update the entire gameboard with values in tiles
 function updateBoard() {
-    let grid = document.querySelector('#grid');
-    grid.innerHTML = '';
+    let board = document.querySelector('.board');
+    board.innerHTML = '';
     for(let i=0; i<size; i++) {
         for(let j=0; j<size; j++) {
             let tile = document.createElement('div');
-            tile.classList.add('tiles')
+            tile.classList.add('tile');
             // Only numbers greater than 0 will be displayed
             if (tiles[i][j] !== 0) {
                 tile.innerHTML = tiles[i][j];
+                tile.classList.add(`tile-${tiles[i][j]}`);
             }
-            grid.appendChild(tile);
+            board.appendChild(tile);
         }
     }
 }
@@ -245,6 +246,5 @@ document.addEventListener('keyup', (key) => {
         case 'KeyS':
             move('down');
             break;
-        }
     }
-)
+})
