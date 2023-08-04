@@ -4,6 +4,9 @@ var score = 0;
 
 // Create size*size tiles with default value of 0
 function createBoard() {
+    // Reset score to 0
+    score = 0;
+    
     for(let i=0; i<size; i++) {
         tiles[i] = []
         for(let j=0; j<size; j++) {
@@ -19,7 +22,7 @@ function createBoard() {
 
 // Update the entire gameboard with values in tiles
 function updateBoard() {
-    let board = document.querySelector('.board');
+    const board = document.querySelector('.board');
     board.innerHTML = '';
     for(let i=0; i<size; i++) {
         for(let j=0; j<size; j++) {
@@ -33,10 +36,12 @@ function updateBoard() {
             board.appendChild(tile);
         }
     }
+    updateScore();
 }
 
 function updateScore() {
-    console.log(score);
+    const scoreElement = document.querySelector('#score');
+    scoreElement.textContent = score.toString();
 }
 
 // Add a tile at a random empty location with value of 2 or 4
@@ -176,16 +181,13 @@ function move(direction) {
         tiles = newTiles;
         addTile();
         updateBoard();
-        updateScore();
 
         if (hasWon()) {
             alert('You Won!');
             createBoard();
-            score = 0;
         } else if (isGameOver()) {
             alert('Game Over!');
             createBoard();
-            score = 0;
         }
     }
 }
