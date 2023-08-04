@@ -4,6 +4,9 @@ var score = 0;
 
 // Create size*size tiles with default value of 0
 function createBoard() {
+    // Reset score to 0
+    score = 0;
+    
     for(let i=0; i<size; i++) {
         tiles[i] = []
         for(let j=0; j<size; j++) {
@@ -19,23 +22,26 @@ function createBoard() {
 
 // Update the entire gameboard with values in tiles
 function updateBoard() {
-    let grid = document.querySelector('#grid');
-    grid.innerHTML = '';
+    const board = document.querySelector('.board');
+    board.innerHTML = '';
     for(let i=0; i<size; i++) {
         for(let j=0; j<size; j++) {
             let tile = document.createElement('div');
-            tile.classList.add('tiles')
+            tile.classList.add('tile');
             // Only numbers greater than 0 will be displayed
             if (tiles[i][j] !== 0) {
                 tile.innerHTML = tiles[i][j];
+                tile.classList.add(`tile-${tiles[i][j]}`);
             }
-            grid.appendChild(tile);
+            board.appendChild(tile);
         }
     }
+    updateScore();
 }
 
 function updateScore() {
-    console.log(score);
+    const scoreElement = document.querySelector('#score');
+    scoreElement.textContent = score.toString();
 }
 
 // Add a tile at a random empty location with value of 2 or 4
@@ -175,16 +181,13 @@ function move(direction) {
         tiles = newTiles;
         addTile();
         updateBoard();
-        updateScore();
 
         if (hasWon()) {
             alert('You Won!');
             createBoard();
-            score = 0;
         } else if (isGameOver()) {
             alert('Game Over!');
             createBoard();
-            score = 0;
         }
     }
 }
@@ -245,6 +248,5 @@ document.addEventListener('keyup', (key) => {
         case 'KeyS':
             move('down');
             break;
-        }
     }
-)
+})
