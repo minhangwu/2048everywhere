@@ -2,6 +2,10 @@ var tiles = [];
 var size = 4;
 var score = 0;
 
+if (!localStorage.getItem('highScore')) {
+    localStorage.setItem('highScore', 0);
+}
+
 // Create size*size tiles with default value of 0
 function createBoard() {
     // Reset score to 0
@@ -36,12 +40,19 @@ function updateBoard() {
             board.appendChild(tile);
         }
     }
-    updateScore();
+    updateScores();
 }
 
-function updateScore() {
+function updateScores() {
     const scoreElement = document.querySelector('#score');
+    const highScoreElement = document.querySelector('#high-score');
+
+    if (score > parseInt(localStorage.getItem('highScore'))) {
+        localStorage.setItem('highScore', score);
+    }
+
     scoreElement.textContent = score.toString();
+    highScoreElement.textContent = localStorage.getItem('highScore');
 }
 
 // Add a tile at a random empty location with value of 2 or 4
