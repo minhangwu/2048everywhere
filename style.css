@@ -104,7 +104,7 @@ body {
   flex: 1;
 }
 
-.reset-button {
+.new-game-button {
   padding: 10px 20px;
   font-size: 16px;
   background-color: #f44336;
@@ -114,6 +114,6 @@ body {
   cursor: pointer;
 }
 
-.reset-button:hover {
+.new-game-button:hover {
   background-color: #d32f2f;
 }

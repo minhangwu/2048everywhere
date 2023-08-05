@@ -7,7 +7,7 @@ if (!localStorage.getItem('highScore')) {
 }
 
 // Create size*size tiles with default value of 0
-function createBoard() {
+function newGame() {
     // Reset score to 0
     score = 0;
     
@@ -195,10 +195,10 @@ function move(direction) {
 
         if (hasWon()) {
             alert('You Won!');
-            createBoard();
+            newGame();
         } else if (isGameOver()) {
             alert('Game Over!');
-            createBoard();
+            newGame();
         }
     }
 }
@@ -234,7 +234,8 @@ function hasWon() {
 
 // Initialize the game
 document.addEventListener('DOMContentLoaded', () => {
-    createBoard(size);
+    document.querySelector('#newGameButton').onclick = newGame;
+    newGame();
 });
 
 // Listen to the key up and move to the given direction
