@@ -8,6 +8,8 @@ if (!localStorage.getItem('highScore')) {
 
 // Create size*size tiles with default value of 0
 function newGame() {
+    // Clear stored game board
+    localStorage.removeItem('gameBoard');
     // Reset score to 0
     score = 0;
     
@@ -41,6 +43,7 @@ function updateBoard() {
         }
     }
     updateScores();
+    storeBoard();
 }
 
 function updateScores() {
@@ -53,6 +56,10 @@ function updateScores() {
 
     scoreElement.textContent = score.toString();
     highScoreElement.textContent = localStorage.getItem('highScore');
+}
+
+function storeBoard() {
+    localStorage.setItem('gameBoard', JSON.stringify(tiles));
 }
 
 // Add a tile at a random empty location with value of 2 or 4
@@ -235,7 +242,12 @@ function hasWon() {
 // Initialize the game
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#newGameButton').onclick = newGame;
-    newGame();
+    if (!localStorage.getItem('gameBoard')) {
+        newGame();
+    } else {
+        tiles = JSON.parse(localStorage.getItem('gameBoard'));
+        updateBoard();
+    }
 });
 
 // Listen to the key up and move to the given direction
