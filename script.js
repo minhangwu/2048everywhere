@@ -1,12 +1,15 @@
 var tiles = [];
 var score = 0;
 var size = 4;
-var gameOver = false;
 
 // Create size*size tiles with default value of 0
 function newGame() {
     // Clear stored game state
     localStorage.removeItem('gameState');
+
+    // Remove game over page
+    const gameOverPage = document.querySelector('.game-over');
+    gameOverPage.style.display = 'none';
 
     // Reset score to 0
     score = 0;
@@ -82,6 +85,8 @@ function renderBoard() {
     // Check if game is over
     if (isGameOver()) {
         // Load game over page
+        const gameOverPage = document.querySelector('.game-over');
+        gameOverPage.style.display = 'flex';
     }
 }
 
