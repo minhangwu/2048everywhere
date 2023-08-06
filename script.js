@@ -1,18 +1,17 @@
 var tiles = [];
-var size = 4;
 var score = 0;
-
-if (!localStorage.getItem('highScore')) {
-    localStorage.setItem('highScore', 0);
-}
+var size = 4;
+var gameOver = false;
 
 // Create size*size tiles with default value of 0
 function newGame() {
-    // Clear stored game board
-    localStorage.removeItem('gameBoard');
+    // Clear stored game state
+    localStorage.removeItem('gameState');
+
     // Reset score to 0
     score = 0;
     
+    // Initialize tiles
     for(let i=0; i<size; i++) {
         tiles[i] = []
         for(let j=0; j<size; j++) {
@@ -23,13 +22,36 @@ function newGame() {
     // Everytime we create a new board, we start with two tiles
     addTile();
     addTile();
-    updateBoard();
+
+    saveGameState();
+    renderBoard();
 }
 
-// Update the entire gameboard with values in tiles
-function updateBoard() {
+function saveGameState() {
+    // Store game state locally
+    let gameState = {
+        tiles: tiles,
+        score: score
+    };
+    localStorage.setItem('gameState', JSON.stringify(gameState));
+}
+
+function loadGameState() {
+    // Load stored game state
+    let gameState = JSON.parse(localStorage.getItem('gameState'));
+    tiles = gameState.tiles;
+    score = gameState.score;
+}
+
+// Render the entire gameboard with values in tiles
+function renderBoard() {
+    loadGameState();
+
+    // Clear existing board
     const board = document.querySelector('.board');
     board.innerHTML = '';
+    
+    // Render tiles
     for(let i=0; i<size; i++) {
         for(let j=0; j<size; j++) {
             let tile = document.createElement('div');
@@ -42,24 +64,25 @@ function updateBoard() {
             board.appendChild(tile);
         }
     }
-    updateScores();
-    storeBoard();
-}
 
-function updateScores() {
+    // Render score
     const scoreElement = document.querySelector('#score');
     const highScoreElement = document.querySelector('#high-score');
+    let highScore = localStorage.getItem('highScore');
 
-    if (score > parseInt(localStorage.getItem('highScore'))) {
-        localStorage.setItem('highScore', score);
+    // Update high score
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('highScore', highScore);
     }
 
     scoreElement.textContent = score.toString();
     highScoreElement.textContent = localStorage.getItem('highScore');
-}
 
-function storeBoard() {
-    localStorage.setItem('gameBoard', JSON.stringify(tiles));
+    // Check if game is over
+    if (isGameOver()) {
+        // Load game over page
+    }
 }
 
 // Add a tile at a random empty location with value of 2 or 4
@@ -135,10 +158,10 @@ function transformTiles(tiles, operation) {
         temp[i] = [];
         for (let j = 0; j < tiles.length; j++) {
             let newI, newJ;
-            if (operation === "transpose") {
+            if (operation === 'transpose') {
                 newI = j;
                 newJ = i;
-            } else if (operation === "flip") {
+            } else if (operation === 'flip') {
                 newI = i;
                 newJ = tiles.length - 1 - j;
             }
@@ -153,40 +176,34 @@ function moveTiles(tiles, direction) {
     // Make a deep copy of tiles
     let temp = JSON.parse(JSON.stringify(tiles));
 
+    let transposed = false;
+    let flipped = false;
+
     // Transform tiles for slide function
-    switch (direction) {
-        case 'left':
-            break;
-        case 'up':
-            temp = transformTiles(temp, 'transpose');
-            break;
-        case 'right':
-            temp = transformTiles(temp, 'flip');
-            break;
-        case 'down':
-            temp = transformTiles(temp, 'transpose');
-            temp = transformTiles(temp, 'flip');
-            break;
+    if (direction === 'up') {
+        temp = transformTiles(temp, 'transpose');
+        transposed = true;
+    } else if (direction === 'right') {
+        temp = transformTiles(temp, 'flip');
+        flipped = true;
+    } else if (direction === 'down') {
+        temp = transformTiles(temp, 'transpose');
+        temp = transformTiles(temp, 'flip');
+        transposed = true;
+        flipped = true;
     }
 
+    // Slide each transformed row
     for (let i=0;i<temp.length;i++) {
         temp[i] = slide(temp[i]);
     }
 
     // Transform back to original form
-    switch (direction) {
-        case 'left':
-            break;
-        case 'up':
-            temp = transformTiles(temp, 'transpose');
-            break;
-        case 'right':
-            temp = transformTiles(temp, 'flip');
-            break;
-        case 'down':
-            temp = transformTiles(temp, 'flip');
-            temp = transformTiles(temp, 'transpose');
-            break;
+    if (flipped) {
+        temp = transformTiles(temp, 'flip');
+    }
+    if (transposed) {
+        temp = transformTiles(temp, 'transpose');
     }
 
     return temp;
@@ -198,15 +215,8 @@ function move(direction) {
     if (!tilesEqual(newTiles, tiles)) {
         tiles = newTiles;
         addTile();
-        updateBoard();
-
-        if (hasWon()) {
-            alert('You Won!');
-            newGame();
-        } else if (isGameOver()) {
-            alert('Game Over!');
-            newGame();
-        }
+        saveGameState();
+        renderBoard();
     }
 }
 
@@ -228,26 +238,24 @@ function isGameOver() {
       return true;
 }
 
-function hasWon() {
-    for (let i = 0; i < tiles.length; i++) {
-        for (let j = 0; j < tiles[i].length; j++) {
-            if (tiles[i][j] === 2048) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// Initialize the game
+// Load page
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelector('#newGameButton').onclick = newGame;
-    if (!localStorage.getItem('gameBoard')) {
+    // Give new game button function
+    const newGameButton = document.querySelector('#newGameButton');
+    newGameButton.onclick = newGame;
+
+    // Check if previous game state exists
+    if (!localStorage.getItem('gameState')) {
         newGame();
-    } else {
-        tiles = JSON.parse(localStorage.getItem('gameBoard'));
-        updateBoard();
     }
+
+    // Check if high score exists
+    if (!localStorage.getItem('highScore')) {
+        localStorage.setItem('highScore', 0);
+    }
+
+    // Render game board
+    renderBoard();
 });
 
 // Listen to the key up and move to the given direction
@@ -273,4 +281,4 @@ document.addEventListener('keyup', (key) => {
             move('down');
             break;
     }
-})
+});
